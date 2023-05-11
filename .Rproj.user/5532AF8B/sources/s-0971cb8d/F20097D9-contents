@@ -1,0 +1,127 @@
+\name{fmr_1_ls_symmetric_se_nomat}
+\alias{fmr_1_ls_symmetric_se_nomat}
+\title{fmr_1_ls_symmetric_se_nomat
+}
+\description{ 1 sample method for symmetric data.
+%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+}
+\usage{
+fmr_1_ls_symmetric_se_nomat(i,k,y,threshold)
+}
+\arguments{
+  \item{i}{ id 1
+%%     ~~Describe \code{x} here~~
+}
+  \item{k}{ number of replications
+  %%     ~~Describe \code{x} here~~
+  }
+  \item{y}{ binary indictor of a match
+  %%     ~~Describe \code{x} here~~
+  }
+  \item{threshold}{threshold to compare the match score to
+  %%     ~~Describe \code{x} here~~
+  }
+}
+
+\value{Returns estimate, se
+%%  ~Describe the value returned
+%%  If it is a LIST, use
+%%  \item{comp1 }{Description of 'comp1'}
+%%  \item{comp2 }{Description of 'comp2'}
+%% ...
+}
+
+\examples{
+
+
+## The function is currently defined as
+fmr_1_ls_symmetric_se_nomat=function(i,k,y,threshold){
+  N=length(i)
+
+  gammacount=0;gammasum=0
+  deltacount=0;deltasum=0
+  Deltacount=0;Deltasum=0
+  nucount=0;nusum=0
+  thetacount=0;thetasum=0
+  pqcount=0;pqsum=0;
+
+  pihat=sum(y>threshold)/length(y)
+  y2=(y>threshold)-pihat
+  pq=pihat*(1-pihat)
+
+  order.ik=order(i,k)
+  i=i[order.ik]
+  k=k[order.ik]
+  y=y[order.ik]
+
+  for (h in 1:N)
+  {
+    for (hh in h: N)
+    {
+      if(h==hh) {
+        pqcount=pqcount+1;
+        pqsum=pqsum+y2[h]*y2[hh]
+      }
+      if(i[h]==i[hh] & k[h]==k[hh]&h!=hh )  {
+        gammacount=gammacount+1;
+        gammasum=gammasum+y2[h]*y2[hh];
+      }
+      if(i[h]==i[hh]&k[h]!=k[hh]) {
+        deltacount=deltacount+1;
+        deltasum=deltasum+y2[h]*y2[hh];
+      }
+
+      if(i[h]!=i[hh]&k[h]==k[hh]) {
+        Deltacount=Deltacount+1;
+        Deltasum=Deltasum+y2[h]*y2[hh];
+      }
+
+      if(i[hh]==k[h]&i[h]!=k[hh]&i[h]!=k[hh]) {
+        nucount=nucount+1;
+        nusum=nusum+y2[h]*y2[hh];
+      }
+
+      if(i[h]==k[hh]&i[hh]!=k[h]&i[h]!=i[hh]) {
+        nucount=nucount+1;
+        nusum=nusum+y2[h]*y2[hh];
+      }
+    }
+  }
+
+  gamma.hat=gammasum/gammacount/pq
+  delta.hat=deltasum/deltacount/pq
+  Delta.hat=Deltasum/Deltacount/pq
+  nu.hat=2*nusum/nucount/pq
+
+  total.var= (pqsum+max(2*gammasum,0)+max(2*deltasum,0)+max(2*Deltasum,0)+max(2*nusum,0))/pqcount/pqcount
+  se=sqrt(total.var)
+
+  Neff=pq/total.var
+
+  corr=cbind(gamma.hat,delta.hat,Delta.hat,nu.hat)
+  print(corr)
+  print("Effective sample size")
+  print(Neff)
+  print("N*p-hat")
+  print(Neff*pihat)
+
+
+  CI=c(pihat-2*sqrt(total.var)/sum(pqvar),pihat+2*sqrt(total.var)/sum(pqvar))
+  CI.binom=c(pihat-2*sqrt(pq/sum(pqvar)),pihat+2*sqrt(pq/sum(pqvar)))
+  print("CI")
+  cat(CI,"\n")
+  cat(pihat,"+/-",se,"\n")
+  print("CI.binom")
+  cat(pihat,"+/-",sqrt(pq/pqcount),"\n")
+  return(se)
+}
+}
+% Add one or more standard keywords, see file 'KEYWORDS' in the
+% R documentation directory (show via RShowDoc("KEYWORDS")):
+% \keyword{ ~kwd1 }
+% \keyword{ ~kwd2 }
+% Use only one keyword per line.
+% For non-standard keywords, use \concept instead of \keyword:
+% \concept{ ~cpt1 }
+% \concept{ ~cpt2 }
+% Use only one concept per line.

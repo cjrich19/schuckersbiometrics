@@ -1,0 +1,68 @@
+\name{fnmr_2p_bs_ci}
+\alias{fnmr_2p_bs_ci}
+%- Also NEED an '\alias' for EACH other topic documented here.
+\title{fnmr_2p_bs_ci
+%%  ~~function to do ... ~~
+}
+\description{2 sample paired bootstrap method
+%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+}
+\usage{
+fnmr_2p_bs_ci(i1,y1,y2,nreps=1000,level=0.95)
+}
+%- maybe also 'usage' for other objects documented here.
+\arguments{
+ \item{i1}{ id 1
+%%     ~~Describe \code{x} here~~
+}
+\item{y1}{ binary for first group  indication of match
+%%     ~~Describe \code{x} here~~
+}
+\item{y2}{ binary for second group indication of match
+%%     ~~Describe \code{x} here~~
+}
+ \item{nreps}{
+    number of repetitions
+}
+\item{level}{
+  confidence level
+}
+}
+
+\value{confidence interval
+%%  ~Describe the value returned
+%%  If it is a LIST, use
+%%  \item{comp1 }{Description of 'comp1'}
+%%  \item{comp2 }{Description of 'comp2'}
+%% ...
+}
+
+\examples{
+fnmr_2p_bs_ci(lausanne.gen[,1],as.numeric(lausanne.gen[,9]<2.724583),as.numeric(lausanne.gen[,10]<1.504904),1000,0.90)
+
+## The function is currently defined as
+function(i1,y1,y2,nreps=1000,level=0.95){
+  #jk individual
+  #boot decisions
+  print("pi1")
+  print(mean(y1))
+  print("pi2")
+  print(mean(y2))
+  if(length(y1)!=length(y2)) {print("lengths unequal");break}
+  diff=fnmr_1_bs_ci(i1,y1-y2,nreps)
+  diff.est=mean(y1)-mean(y2)
+  print("diff")
+  print(diff.est)
+  print(diff.est-quantile(diff-diff.est,c(1-(1-level)/2,(1-level)/2)))
+  return(diff)
+}
+}
+% Add one or more standard keywords, see file 'KEYWORDS' in the
+% R documentation directory (show via RShowDoc("KEYWORDS")):
+% \keyword{ ~kwd1 }
+% \keyword{ ~kwd2 }
+% Use only one keyword per line.
+% For non-standard keywords, use \concept instead of \keyword:
+% \concept{ ~cpt1 }
+% \concept{ ~cpt2 }
+% Use only one concept per line.

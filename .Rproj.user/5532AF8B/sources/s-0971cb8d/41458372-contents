@@ -1,0 +1,55 @@
+\name{fmr_2i_ls_pval}
+\alias{fmr_2i_ls_pval}
+\title{fmr_2i_ls_pval
+}
+\description{2 sample independent, large sample method
+%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+}
+\usage{
+fmr_2i_ls_pval(i1,k1,y1,i2,k2,y2)
+}
+\arguments{
+  \item{i1}{ id 1
+}
+\item{k1}{ replications sample 1
+}
+\item{y1}{ binary for first sample  indication of match
+}
+\item{i2}{ id 1 sample 2
+}
+\item{k2}{ replications sample 2
+}
+\item{y2}{ binary for second sample indication of match
+}
+}
+
+\value{returns Z statistic found/used and a p value
+%%  ~Describe the value returned
+%%  If it is a LIST, use
+%%  \item{comp1 }{Description of 'comp1'}
+%%  \item{comp2 }{Description of 'comp2'}
+%% ...
+}
+
+\examples{
+fmr_2i_ls_pval(BANCA.G.g2.imp[,1],BANCA.G.g2.imp[,2],as.numeric(BANCA.G.g2.imp[,76]>-66), BANCA.G.g1.imp[,1],BANCA.G.g1.imp[,2], as.numeric(BANCA.G.g1.imp[,76] > -66))
+
+## The function is currently defined as
+fmr_2i_ls_pval=function(i1,k1,y1,i2,k2,y2)
+{
+  nu1hat=mean(y1)
+  nu2hat=mean(y2)
+  pooled=mean(c(y1,y2))
+  se1=fmr_1s_asymmetric_se_nomat(i1,k1,y1,0.5)
+  se2=fmr_1s_asymmetric_se_nomat(i2,k2,y2,0.5)
+
+  zstat=(nu1hat-nu2hat)/sqrt(se1^2+se2^2)
+  pval=pnorm(zstat)
+  print("Z")
+  print(zstat)
+  print("p-value")
+  print(pval)
+  ##return(sqrt(se1^2+se2^2))
+}
+}
+

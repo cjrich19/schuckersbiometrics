@@ -1,0 +1,57 @@
+\name{fnmr_2p_bs_ci}
+\alias{fnmr_2p_bs_ci}
+\title{fnmr_2p_bs_ci
+}
+\description{2 sample paired bootstrap method
+%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+}
+\usage{
+fnmr_2p_bs_ci(i1,y1,y2,nreps=1000,level=0.95)
+}
+\arguments{
+ \item{i1}{ id 1
+%%     ~~Describe \code{x} here~~
+}
+\item{y1}{ binary for first group  indication of match
+%%     ~~Describe \code{x} here~~
+}
+\item{y2}{ binary for second group indication of match
+%%     ~~Describe \code{x} here~~
+}
+ \item{nreps}{
+    number of repetitions
+}
+\item{level}{
+  confidence level
+}
+}
+
+\value{Outputs individual boot decisions, the difference between sample estimates, and a confidence interval
+%%  ~Describe the value returned
+%%  If it is a LIST, use
+%%  \item{comp1 }{Description of 'comp1'}
+%%  \item{comp2 }{Description of 'comp2'}
+%% ...
+}
+
+\examples{
+## note number of reps limited due to runtime
+fnmr_2p_bs_ci(lausanne.gen[,1],as.numeric(lausanne.gen[,9]<2.724583),as.numeric(lausanne.gen[,10]<1.504904),100,0.90)
+
+## The function is currently defined as
+function(i1,y1,y2,nreps=1000,level=0.95){
+  #jk individual
+  #boot decisions
+  print("pi1")
+  print(mean(y1))
+  print("pi2")
+  print(mean(y2))
+  if(length(y1)!=length(y2)) {print("lengths unequal");break}
+  diff=fnmr_1_bs_reps(i1,y1-y2,nreps)
+  diff.est=mean(y1)-mean(y2)
+  print("diff")
+  print(diff.est)
+  print(diff.est-quantile(diff-diff.est,c(1-(1-level)/2,(1-level)/2)))
+  return(diff)
+}
+}

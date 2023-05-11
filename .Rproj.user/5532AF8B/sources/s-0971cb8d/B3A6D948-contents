@@ -1,0 +1,83 @@
+\name{fmr_2i_bs_ci}
+\alias{fmr_2i_bs_ci}
+%- Also NEED an '\alias' for EACH other topic documented here.
+\title{fmr_2i_bs_ci
+%%  ~~function to do ... ~~
+}
+\description{
+2 sample independent, bootstrap method
+%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+}
+\usage{
+fmr_2i_bs_ci(i1,j1,y1,i2,j2,y2,nreps=1000,cross1=1,cross2=1,level)
+}
+%- maybe also 'usage' for other objects documented here.
+\arguments{
+  \item{i1}{ id 1
+%%     ~~Describe \code{x} here~~
+}
+\item{j1}{ id 2
+%%     ~~Describe \code{x} here~~
+}
+\item{y1}{ binary for first sample  indication of match
+%%     ~~Describe \code{x} here~~
+}
+\item{i2}{ id 1 sample 2
+%%     ~~Describe \code{x} here~~
+}
+\item{j2}{ id 2 sample 2
+%%     ~~Describe \code{x} here~~
+}
+\item{y2}{ binary for second sample indication of match
+%%     ~~Describe \code{x} here~~
+}
+ \item{nreps}{
+    number of repetitions
+}
+\item{cross1}{
+  1 or 0 to indicate if that the list of individuals is the same for the two columns representing the individuals (1) or different (0).
+ (input for samples 1 and 2)
+}\item{cross2}{
+  The same as cross1 but for sample 2
+}
+\item{level}{
+  confidence level
+}
+}
+
+\value{Outputs confidence interval
+%%  ~Describe the value returned
+%%  If it is a LIST, use
+%%  \item{comp1 }{Description of 'comp1'}
+%%  \item{comp2 }{Description of 'comp2'}
+%% ...
+}
+
+\examples{
+fmr_2i_bs_ci(BANCA.G.g1.imp[,1],BANCA.G.g1.imp[,2],as.numeric(BANCA.G.g1.imp[,25]> 0),BANCA.G.g2.imp[,1],BANCA.G.g2.imp[,2],as.numeric(BANCA.G.g2.imp[,25]> 0),nreps = 10, cross1 = 1, cross2 = 1, level=0.95)
+
+
+## The function is currently defined as
+fmr_2i_bs_ci=function(i1,j1,y1,i2,j2,y2,nreps=1000,cross1=1,cross2=1,level)
+{
+  nuhat1=mean(y1)
+  nuhat2=mean(y2)
+  out1=fmr_1_bs_ci(i1,j1,y1,nreps,cross1)
+  out2=fmr_1_bs_ci(i2,j2,y2,nreps,cross2)
+  out=(out1-out2)-(nuhat1-nuhat2)
+
+  print("ci")
+  ci=c(nuhat1-nuhat2-quantile(out,(1-level)/2),nuhat1-nuhat2-quantile(out,1-(1-level)/2))
+  print(ci)
+  return(out)
+}
+}
+% Add one or more standard keywords, see file 'KEYWORDS' in the
+% R documentation directory (show via RShowDoc("KEYWORDS")):
+% \keyword{ ~kwd1 }
+% \keyword{ ~kwd2 }
+% Use only one keyword per line.
+% For non-standard keywords, use \concept instead of \keyword:
+% \concept{ ~cpt1 }
+% \concept{ ~cpt2 }
+% Use only one concept per line.

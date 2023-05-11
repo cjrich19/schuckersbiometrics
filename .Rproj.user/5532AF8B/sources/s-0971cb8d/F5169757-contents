@@ -1,0 +1,89 @@
+\name{fmr_2p_bs_pval}
+\alias{fmr_2p_bs_pval}
+\title{fmr_2p_bs_pval
+}
+\description{2 sample paired bootstrap method
+%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+}
+\usage{
+fmr_2p_bs_pval(i,j,y1,y2,nreps=1000,cross=1,level=0.95)
+}
+\arguments{
+  \item{i}{ id 1
+}
+\item{j}{ id 2
+}
+\item{y1}{binary indicator of match
+}
+\item{y2}{binary indicator of match 2
+}
+\item{nreps}{
+    number of repetitions
+}
+  \item{cross}{
+  1 or 0 to indicate if that the list of individuals is the same for the two columns representing the individuals (1) or different (0).
+ (input for samples 1 and 2)
+}
+\item{level}{
+  confidence level
+}
+}
+
+\value{p value
+%%  ~Describe the value returned
+%%  If it is a LIST, use
+%%  \item{comp1 }{Description of 'comp1'}
+%%  \item{comp2 }{Description of 'comp2'}
+%% ...
+}
+
+\examples{
+## Note number of reps decreased in this example for time purposes
+fmr_2p_bs_pval(lausanne.imp[,1],lausanne.imp[,2],as.numeric(lausanne.imp[,4]>0.4),as.numeric(lausanne.imp[,6]> -0.3),nreps=100,cross=0)
+
+## The function is currently defined as
+function(i,j,y1,y2,nreps=1000,cross=1,level=0.95){
+  if(length(i)!=length(j)|length(i)!=length(y1)) {print("lengths unequal");break}
+
+  out=rep(0,nreps)
+  data1=cbind(i,j,y1)
+  data2=cbind(i,j,y2)
+  indiv.i=names(table(i))
+  n.i=length(indiv.i)
+  indiv.j=names(table(j))
+  n.j=length(indiv.j)
+  if (cross==1) {indiv.j=indiv.i;n.j=n.i}
+  out[1]=mean(y1)-mean(y2)
+  for  (t in 2:nreps)
+  {
+    out1=vector(length=0)
+    out2=vector(length=0)
+    list.i=sample(indiv.i,n.i,replace=T)
+    for(t2 in 1:length(list.i))
+    {
+      list.j=sample(indiv.j,n.j,replace=T)
+      for (t3 in 1:length(list.j))
+      {
+        temp1=data1[(i==as.numeric(list.i[t2])&j==as.numeric(list.j[t3])),]
+        temp2=data2[(i==as.numeric(list.i[t2])&j==as.numeric(list.j[t3])),]
+        out1= c(out1,temp1[,3])
+        out2=c(out2,temp2[,3])
+      }
+    }
+    out[t]=mean(out1)-mean(out2)-(mean(y1)-mean(y2))
+  }
+
+  print("pval")
+  print(mean(out <= out[1]))
+
+}
+}
+% Add one or more standard keywords, see file 'KEYWORDS' in the
+% R documentation directory (show via RShowDoc("KEYWORDS")):
+% \keyword{ ~kwd1 }
+% \keyword{ ~kwd2 }
+% Use only one keyword per line.
+% For non-standard keywords, use \concept instead of \keyword:
+% \concept{ ~cpt1 }
+% \concept{ ~cpt2 }
+% Use only one concept per line.

@@ -1,0 +1,169 @@
+\name{fmr_1s_asymmetric_se_nomat}
+\alias{fmr_1s_asymmetric_se_nomat}
+\title{fmr_1s_asymmetric_se_nomat
+}
+\description{1 sample method for asymmetric data.
+%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+}
+\usage{
+fmr_1s_asymmetric_se_nomat(i,k,y,threshold)
+}
+\arguments{
+  \item{i}{ id 1
+%%     ~~Describe \code{x} here~~
+}
+   \item{k}{ number of replications
+  %%     ~~Describe \code{x} here~~
+  }
+   \item{y}{ binary indicator of match
+  %%     ~~Describe \code{x} here~~
+  }
+  \item{threshold}{ threshold to compare the Match score to
+  %%     ~~Describe \code{x} here~~
+  }
+}
+
+\value{Returns estimate, se
+%%  ~Describe the value returned
+%%  If it is a LIST, use
+%%  \item{comp1 }{Description of 'comp1'}
+%%  \item{comp2 }{Description of 'comp2'}
+%% ...
+}
+
+\examples{
+
+fmr_1s_asymmetric_se_nomat(B.G.g1.imp[,1],B.G.g1.imp[,2],as.numeric(B.G.g1.imp[,35]> -0.25),0.5)
+
+## The function is currently defined as
+fmr_1s_asymmetric_se_nomat=function(i,k,y,threshold){
+  N=length(i)
+  order.ik=order(i,k)
+  i=i[order.ik]
+  k=k[order.ik]
+  y=y[order.ik]
+
+  etacount=0;etasum=0;
+  pqcount=0;pqsum=0;
+  omegacount=0;omegasum=0;
+  chicount=0;chisum=0;
+  psicount=0;psisum=0;
+  epsiloncount=0; epsilonsum=0
+  xi1count=0;xi1sum=0;
+  xi2count=0;xi2sum=0;
+
+  pihat=sum(y>threshold)/length(y)
+  y2=(y>threshold)-pihat
+  pq=pihat*(1-pihat)
+
+
+  ell=rep(0,N)
+  ell[1]=1
+  temp.i=i[1]
+  temp.k=k[1]
+  for (h in 2:N)
+  {
+    if (i[h]==temp.i&k[h]==temp.k)
+    {
+      ell[h]=ell[h-1]+1
+    }
+    else{
+      ell[h]=1;temp.i=i[h];temp.k=k[h]
+    }
+  }
+  #print(ell)
+
+
+  for (h in 1:N)
+  {
+    pqcount=pqcount+1
+    pqsum=pqsum+y2[h]*y2[h]
+    for (hh in h: N)
+    {
+
+      if(i[h]==i[hh]&k[h]==k[hh]&ell[h]!=ell[hh]){
+        etacount=etacount+1
+        etasum=etasum+y2[h]*y2[hh]
+        #cat("eta i=",i[h]," k =",k[h]," i'=",i[hh]," k'=", k[hh],"\n")
+      }
+
+      if(i[h]==i[hh]&k[h]!=k[hh]&i[h]!=k[h]&i[h]!=k[hh])
+      {
+        omegacount=omegacount+1
+        omegasum=omegasum+y2[h]*y2[hh]
+        # cat("omega i=",i[h]," k =",k[h]," i'=",i[hh]," k'=", k[hh],"\n")
+      }
+      if(i[h]!=i[hh]&k[h]==k[hh]&i[h]!=k[h]&i[hh]!=k[hh])
+      {
+        chicount=chicount+1
+        chisum=chisum+y2[h]*y2[hh]
+        #cat("chi i=",i[h]," k =",k[h]," i'=",i[hh]," k'=", k[hh],"\n")
+      }
+      if(i[h]==k[hh]&i[hh]!=k[h]&i[h]!=i[hh]&i[h]!=k[h])
+      {
+
+        psicount=psicount+1
+        psisum=psisum+y2[h]*y2[hh]
+        #cat("psi i=",i[h]," k =",k[h]," i'=",i[hh]," k'=", k[hh],"\n")
+      }
+      if(i[hh]==k[h]&i[h]!=k[hh]&i[h]!=i[hh]&i[hh]!=k[hh])
+      {
+        psicount=psicount+1
+        psisum=psisum+y2[h]*y2[hh]
+        #cat("psi i=",i[h]," k =",k[h]," i'=",i[hh]," k'=", k[hh],"\n")
+      }
+      if(i[h]==k[hh]&i[hh]==k[h]&i[h]!=i[hh]& ell[h]==ell[hh])
+      {
+        xi1count=xi1count+1
+        xi1sum=xi1sum+y2[h]*y2[hh]
+        #cat("xi i=",i[h]," k =",k[h]," i'=",i[hh]," k'=", k[hh],"\n")
+      }
+      if(i[h]==k[hh]&i[hh]==k[h]&i[h]!=i[hh]&ell[h]!=ell[hh])
+      {
+        xi2count=xi2count+1
+        xi2sum=xi2sum+y2[h]*y2[hh]
+        #cat("xi i=",i[h]," k =",k[h]," i'=",i[hh]," k'=", k[hh],"\n")
+      }
+    }
+  }
+
+  eta.hat=etasum/etacount/pq
+  omega.hat=omegasum/omegacount/pq
+  chi.hat=chisum/chicount/pq
+  psi.hat=psisum/psicount/pq
+  xi1.hat=xi1sum/xi1count/pq
+  xi2.hat=xi2sum/xi2count/pq
+
+  total.var= (pqsum+max(2*etasum,0)+max(2*omegasum,0)+max(2*chisum,0)
+              +max(2*psisum,0)+max(2*xi1sum,0)+max(2*xi2sum,0))/pqcount/pqcount
+  Neff=pq/total.var
+  se=sqrt(total.var)
+  corr=cbind(eta.hat,omega.hat,chi.hat,psi.hat,xi1.hat,xi2.hat)
+  #print(corr)
+
+  #simpler model
+  #print("simplified")
+  omegahat2=2*(omegasum+chisum+psisum)/(omegacount+chicount+psicount)/pq
+  #print(omegahat2)
+
+  #print("Effective sample size")
+  #print(Neff)
+  #print("N*p-hat")
+  #print(Neff*pihat)
+  #print("CI")
+  #cat(pihat,"+/-",se,"\n")
+  #print("CI.binom")
+  #cat(pihat,"+/-",sqrt(pq/pqcount),"\n")
+
+  return(se)
+}
+}
+% Add one or more standard keywords, see file 'KEYWORDS' in the
+% R documentation directory (show via RShowDoc("KEYWORDS")):
+% \keyword{ ~kwd1 }
+% \keyword{ ~kwd2 }
+% Use only one keyword per line.
+% For non-standard keywords, use \concept instead of \keyword:
+% \concept{ ~cpt1 }
+% \concept{ ~cpt2 }
+% Use only one concept per line.

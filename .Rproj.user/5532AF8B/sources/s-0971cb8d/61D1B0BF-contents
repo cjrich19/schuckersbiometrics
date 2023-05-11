@@ -1,0 +1,18 @@
+\name{lausanne.imp}
+\alias{lausanne.imp}
+\docType{data}
+\title{lausanne.imp
+%%   ~~ data name/kind ... ~~
+}
+
+\usage{data("lausanne.imp")}
+\format{
+  The format is:
+ num [1:40000, 1:10] 0 0 0 0 0 0 0 0 0 0 ...
+}
+
+\examples{
+data(lausanne.imp)
+## maybe str(lausanne.imp) ; plot(lausanne.imp) ...
+}
+\keyword{datasets}

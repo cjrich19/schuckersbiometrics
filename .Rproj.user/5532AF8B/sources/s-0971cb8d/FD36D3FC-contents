@@ -1,0 +1,28 @@
+\name{lausanne.imp}
+\alias{lausanne.imp}
+\docType{data}
+\title{lausanne.imp
+%%   ~~ data name/kind ... ~~
+}
+\description{
+%%  ~~ A concise (1-5 lines) description of the dataset. ~~
+}
+\usage{data("lausanne.imp")}
+\format{
+  The format is:
+ num [1:40000, 1:10] 0 0 0 0 0 0 0 0 0 0 ...
+}
+\details{
+%%  ~~ If necessary, more details than the __description__ above ~~
+}
+\source{
+%%  ~~ reference to a publication or URL from which the data were obtained ~~
+}
+\references{
+%%  ~~ possibly secondary sources and usages ~~
+}
+\examples{
+data(lausanne.imp)
+## maybe str(lausanne.imp) ; plot(lausanne.imp) ...
+}
+\keyword{datasets}

@@ -1,0 +1,84 @@
+\name{fnmr_se_supplementary_no_out}
+\alias{fnmr_se_supplementary_no_out}
+%- Also NEED an '\alias' for EACH other topic documented here.
+\title{fnmr_se_supplementary_no_out
+%%  ~~function to do ... ~~
+}
+\description{Supplementary function to get SE for a 1 sample ls fnmr without printing
+%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+}
+\usage{
+fnmr_se_supplementary_no_out(i, y, threshold, level=0.95)
+}
+\arguments{
+  \item{i}{ individual
+}
+ \item{y}{ decisions
+}
+ \item{threshold}{ threshold value
+} \item{level}{ confidence level
+}
+}
+
+\examples{
+
+
+## The function is currently defined as
+function (x) function(i,y,threshold,level=0.95)
+{
+  N=length(i)
+  order.i=order(i)
+  i=i[order.i]
+  y=y[order.i]
+  #print(i)
+  #zeros=matrix(rep(0,N*N),ncol=N)
+  #rho=zeros
+  #pqvar=zeros
+  pihat=sum(y>threshold)/length(y)
+  y2=as.numeric(y>threshold)-pihat
+  #print(y2)
+  pq=pihat*(1-pihat)
+  rhosum=0
+  rhocount=0
+  varcount=0
+  varsum=0
+  for (h in 1:N)
+  {
+    for (hh in h:N)
+    {
+      if (h==hh) {
+        #
+        varcount=varcount+1
+        varsum=varsum+y2[h]*y2[hh]
+      }
+      if (i[h]==i[hh]&h!=hh)
+      {#print(i[h]);print(i[hh]);print("*");
+        rhosum=rhosum+y2[h]*y2[hh]
+        rhocount=rhocount+1
+        #print(rhosum)
+      }
+    }
+  }
+
+  #print(rhocount)
+  corr.hat=rhosum/rhocount/pq
+  total.var= (varsum+max(2*rhosum,0))/varcount/varcount
+  #print("rho -hat")
+  #print(corr.hat)
+  #print(rhocount)
+  #print(varsum)
+  Neff=pq/total.var
+  #print("Neff")
+  #print(Neff)
+  se=sqrt(total.var)
+  CI=c(pihat-qnorm(1-(1-level)/2)*se,pihat+qnorm(1-(1-level)/2)*se)
+  CI.binom=c(pihat-2*sqrt(pq/varcount),pihat+2*sqrt(pq/varcount))
+  #print("CI")
+  #cat(pihat,"+/-",se,"\n")
+  #print("CI.binom")
+  #cat(pihat,"+/-",sqrt(pq/varcount),"\n")
+
+  return(se)
+
+}
+}

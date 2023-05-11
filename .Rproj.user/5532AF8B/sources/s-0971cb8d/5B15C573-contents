@@ -1,0 +1,28 @@
+\name{BANCA.G.g1.gen}
+\alias{BANCA.G.g1.gen}
+\docType{data}
+\title{BANCA.G.g1.gen
+%%   ~~ data name/kind ... ~~
+}
+\description{
+%%  ~~ A concise (1-5 lines) description of the dataset. ~~
+}
+\usage{data("BANCA.G.g1.gen")}
+\format{
+  The format is:
+ num [1:233, 1:76] 1001 1001 1001 1001 1001 ...
+}
+\details{
+%%  ~~ If necessary, more details than the __description__ above ~~
+}
+\source{
+%%  ~~ reference to a publication or URL from which the data were obtained ~~
+}
+\references{
+%%  ~~ possibly secondary sources and usages ~~
+}
+\examples{
+data(BANCA.G.g1.gen)
+## maybe str(BANCA.G.g1.gen) ; plot(BANCA.G.g1.gen) ...
+}
+\keyword{datasets}

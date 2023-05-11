@@ -1,0 +1,64 @@
+\name{fmr_bs_general}
+\alias{fmr_bs_general}
+\title{fmr_bs_general
+}
+\description{Supplementary function for bootstraps
+%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+}
+\usage{
+fmr_bs_general(i,j,y,nreps=1000,cross=1)
+}
+\arguments{
+  \item{i}{ id 1
+}
+ \item{j}{ id 2
+}\item{y }{ decisions
+}
+\item{nreps}{number of repetitions
+}
+\item{cross}{1 or 0 to indicate if that the list of individuals is the same for the two columns representing the individuals (1) or different (0).
+
+}
+}
+
+\examples{
+
+## The function is currently defined as
+fmr_bs_general=function(i,j,y,nreps=1000,cross=1){
+if(length(i)!=length(j)|length(i)!=length(y)) {print("lengths unequal");break}
+
+out2=rep(0,nreps)
+data=cbind(i,j,y)
+indiv.i=names(table(i))
+n.i=length(indiv.i)
+indiv.j=names(table(j))
+n.j=length(indiv.j)
+if (cross==1) {indiv.j=indiv.i;n.j=n.i}
+
+for  (t in 1:nreps){
+
+	out=vector(length=0)
+	list.i=sample(indiv.i,n.i,replace=T)
+        for(t2 in 1:length(list.i))
+		{
+			list.j=sample(indiv.j,n.j,replace=T)
+			for (t3 in 1:length(list.j))
+			{
+   			temp=data[(i==as.numeric(list.i[t2])&j==as.numeric(list.j[t3])),]
+			if (length(temp)>0) out= rbind(out,t(as.matrix(temp))[,3])
+			}
+		}
+		out2[t]=mean(out)
+}
+return(out2)
+}
+}
+% Add one or more standard keywords, see file 'KEYWORDS' in the
+% R documentation directory (show via RShowDoc("KEYWORDS")):
+% \keyword{ ~kwd1 }
+% \keyword{ ~kwd2 }
+% Use only one keyword per line.
+% For non-standard keywords, use \concept instead of \keyword:
+% \concept{ ~cpt1 }
+% \concept{ ~cpt2 }
+% Use only one concept per line.

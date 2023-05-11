@@ -1,0 +1,667 @@
+rm(list= ls())
+ls()
+
+
+fmr_1_ls_symmetric_se_nomat=function(i,k,y,threshold){
+  N=length(i)
+
+  gammacount=0;gammasum=0
+  deltacount=0;deltasum=0
+  Deltacount=0;Deltasum=0
+  nucount=0;nusum=0
+  thetacount=0;thetasum=0
+  pqcount=0;pqsum=0;
+
+  pihat=sum(y>threshold)/length(y)
+  y2=(y>threshold)-pihat
+  pq=pihat*(1-pihat)
+
+  order.ik=order(i,k)
+  i=i[order.ik]
+  k=k[order.ik]
+  y=y[order.ik]
+
+  for (h in 1:N)
+  {
+    for (hh in h: N)
+    {
+      if(h==hh) {
+        pqcount=pqcount+1;
+        pqsum=pqsum+y2[h]*y2[hh]
+      }
+      if(i[h]==i[hh] & k[h]==k[hh]&h!=hh )  {
+        gammacount=gammacount+1;
+        gammasum=gammasum+y2[h]*y2[hh];
+      }
+      if(i[h]==i[hh]&k[h]!=k[hh]) {
+        deltacount=deltacount+1;
+        deltasum=deltasum+y2[h]*y2[hh];
+      }
+
+      if(i[h]!=i[hh]&k[h]==k[hh]) {
+        Deltacount=Deltacount+1;
+        Deltasum=Deltasum+y2[h]*y2[hh];
+      }
+
+      if(i[hh]==k[h]&i[h]!=k[hh]&i[h]!=k[hh]) {
+        nucount=nucount+1;
+        nusum=nusum+y2[h]*y2[hh];
+      }
+
+      if(i[h]==k[hh]&i[hh]!=k[h]&i[h]!=i[hh]) {
+        nucount=nucount+1;
+        nusum=nusum+y2[h]*y2[hh];
+      }
+    }
+  }
+
+  gamma.hat=gammasum/gammacount/pq
+  delta.hat=deltasum/deltacount/pq
+  Delta.hat=Deltasum/Deltacount/pq
+  nu.hat=2*nusum/nucount/pq
+
+  total.var= (pqsum+max(2*gammasum,0)+max(2*deltasum,0)+max(2*Deltasum,0)+max(2*nusum,0))/pqcount/pqcount
+  se=sqrt(total.var)
+
+  Neff=pq/total.var
+
+  corr=cbind(gamma.hat,delta.hat,Delta.hat,nu.hat)
+  print(corr)
+  print("Effective sample size")
+  print(Neff)
+  print("N*p-hat")
+  print(Neff*pihat)
+
+
+  CI=c(pihat-2*sqrt(total.var)/sum(pqvar),pihat+2*sqrt(total.var)/sum(pqvar))
+  CI.binom=c(pihat-2*sqrt(pq/sum(pqvar)),pihat+2*sqrt(pq/sum(pqvar)))
+  print("CI")
+  cat(CI,"\n")
+  cat(pihat,"+/-",se,"\n")
+  print("CI.binom")
+  cat(pihat,"+/-",sqrt(pq/pqcount),"\n")
+  return(se)
+}
+
+fmr_1s_asymmetric_se_nomat=function(i,k,y,threshold){
+  N=length(i)
+  order.ik=order(i,k)
+  i=i[order.ik]
+  k=k[order.ik]
+  y=y[order.ik]
+
+  etacount=0;etasum=0;
+  pqcount=0;pqsum=0;
+  omegacount=0;omegasum=0;
+  chicount=0;chisum=0;
+  psicount=0;psisum=0;
+  epsiloncount=0; epsilonsum=0
+  xi1count=0;xi1sum=0;
+  xi2count=0;xi2sum=0;
+
+  pihat=sum(y>threshold)/length(y)
+  y2=(y>threshold)-pihat
+  pq=pihat*(1-pihat)
+
+
+  ell=rep(0,N)
+  ell[1]=1
+  temp.i=i[1]
+  temp.k=k[1]
+  for (h in 2:N)
+  {
+    if (i[h]==temp.i&k[h]==temp.k)
+    {
+      ell[h]=ell[h-1]+1
+    }
+    else{
+      ell[h]=1;temp.i=i[h];temp.k=k[h]
+    }
+  }
+  #print(ell)
+
+
+  for (h in 1:N)
+  {
+    pqcount=pqcount+1
+    pqsum=pqsum+y2[h]*y2[h]
+    for (hh in h: N)
+    {
+
+      if(i[h]==i[hh]&k[h]==k[hh]&ell[h]!=ell[hh]){
+        etacount=etacount+1
+        etasum=etasum+y2[h]*y2[hh]
+        #cat("eta i=",i[h]," k =",k[h]," i'=",i[hh]," k'=", k[hh],"\n")
+      }
+
+      if(i[h]==i[hh]&k[h]!=k[hh]&i[h]!=k[h]&i[h]!=k[hh])
+      {
+        omegacount=omegacount+1
+        omegasum=omegasum+y2[h]*y2[hh]
+        # cat("omega i=",i[h]," k =",k[h]," i'=",i[hh]," k'=", k[hh],"\n")
+      }
+      if(i[h]!=i[hh]&k[h]==k[hh]&i[h]!=k[h]&i[hh]!=k[hh])
+      {
+        chicount=chicount+1
+        chisum=chisum+y2[h]*y2[hh]
+        #cat("chi i=",i[h]," k =",k[h]," i'=",i[hh]," k'=", k[hh],"\n")
+      }
+      if(i[h]==k[hh]&i[hh]!=k[h]&i[h]!=i[hh]&i[h]!=k[h])
+      {
+
+        psicount=psicount+1
+        psisum=psisum+y2[h]*y2[hh]
+        #cat("psi i=",i[h]," k =",k[h]," i'=",i[hh]," k'=", k[hh],"\n")
+      }
+      if(i[hh]==k[h]&i[h]!=k[hh]&i[h]!=i[hh]&i[hh]!=k[hh])
+      {
+        psicount=psicount+1
+        psisum=psisum+y2[h]*y2[hh]
+        #cat("psi i=",i[h]," k =",k[h]," i'=",i[hh]," k'=", k[hh],"\n")
+      }
+      if(i[h]==k[hh]&i[hh]==k[h]&i[h]!=i[hh]& ell[h]==ell[hh])
+      {
+        xi1count=xi1count+1
+        xi1sum=xi1sum+y2[h]*y2[hh]
+        #cat("xi i=",i[h]," k =",k[h]," i'=",i[hh]," k'=", k[hh],"\n")
+      }
+      if(i[h]==k[hh]&i[hh]==k[h]&i[h]!=i[hh]&ell[h]!=ell[hh])
+      {
+        xi2count=xi2count+1
+        xi2sum=xi2sum+y2[h]*y2[hh]
+        #cat("xi i=",i[h]," k =",k[h]," i'=",i[hh]," k'=", k[hh],"\n")
+      }
+    }
+  }
+
+  eta.hat=etasum/etacount/pq
+  omega.hat=omegasum/omegacount/pq
+  chi.hat=chisum/chicount/pq
+  psi.hat=psisum/psicount/pq
+  xi1.hat=xi1sum/xi1count/pq
+  xi2.hat=xi2sum/xi2count/pq
+
+  total.var= (pqsum+max(2*etasum,0)+max(2*omegasum,0)+max(2*chisum,0)
+              +max(2*psisum,0)+max(2*xi1sum,0)+max(2*xi2sum,0))/pqcount/pqcount
+  Neff=pq/total.var
+  se=sqrt(total.var)
+  corr=cbind(eta.hat,omega.hat,chi.hat,psi.hat,xi1.hat,xi2.hat)
+  #print(corr)
+
+  #simpler model
+  #print("simplified")
+  omegahat2=2*(omegasum+chisum+psisum)/(omegacount+chicount+psicount)/pq
+  #print(omegahat2)
+
+  #print("Effective sample size")
+  #print(Neff)
+  #print("N*p-hat")
+  #print(Neff*pihat)
+  #print("CI")
+  #cat(pihat,"+/-",se,"\n")
+  #print("CI.binom")
+  #cat(pihat,"+/-",sqrt(pq/pqcount),"\n")
+  #print(sqrt((pqsum+2*etasum+2*omegasum+2*chisum
+  #+2*psisum+2*xi1sum+2*xi2sum)/pqcount/pqcount))
+  return(se)
+}
+
+fmr_1_bs_ci=function(i,j,y,nreps=1000,cross=1,level=0.95){
+  nuhat=mean(y)
+  out=fmr_bs_general(i,j,y,nreps,cross)-nuhat
+  print("ci")
+  ci=c(nuhat-quantile(out,(1-level)/2),nuhat-quantile(out,1-(1-level)/2))
+  print(ci)
+}
+
+
+
+fmr_2i_bs_ci=function(i1,j1,y1,i2,j2,y2,nreps=1000,cross1=1,cross2=1,level)
+{
+  nuhat1=mean(y1)
+  nuhat2=mean(y2)
+  out1=fmr_1_bs_ci(i1,j1,y1,nreps,cross1)
+  out2=fmr_1_bs_ci(i2,j2,y2,nreps,cross2)
+  out=(out1-out2)-(nuhat1-nuhat2)
+
+  print("ci")
+  ci=c(nuhat1-nuhat2-quantile(out,(1-level)/2),nuhat1-nuhat2-quantile(out,1-(1-level)/2))
+  print(ci)
+  ##return(out)
+}
+
+
+
+fmr_2i_ls_ci=function(i1,k1,y1,i2,k2,y2,level)
+{
+  nu1hat=mean(y1)
+  nu2hat=mean(y2)
+  se1=fmr_1s_asymmetric_se_nomat(i1,k1,y1,0.5)
+  se2=fmr_1s_asymmetric_se_nomat(i2,k2,y2,0.5)
+
+  se=sqrt(se1^2+se2^2)
+  print("CI")
+  CI=c(nu1hat-nu2hat-qnorm(1-(1-level)/2)*se,nu1hat-nu2hat+qnorm(1-(1-level)/2)*se)
+  print(CI)
+
+  ##return(se)
+}
+
+# hyp tests (bs, ls)
+fmr_2i_bs_pval=function(i1,j1,y1,i2,j2,y2,nreps=1000,cross1,cross2,level=0.95)
+{
+  #if(length(i)!=length(j)|length(i)!=length(y1)) {print("lengths unequal");break}
+
+  out=rep(0,nreps)
+  data1=cbind(i1,j1,y1)
+  data2=cbind(i2,j2,y2)
+
+  indiv.i1=names(table(i1))
+  n.i1=length(indiv.i1)
+  indiv.j1=names(table(j1))
+  n.j1=length(indiv.j1)
+
+  indiv.i2=names(table(i2))
+  n.i2=length(indiv.i2)
+  indiv.j2=names(table(j2))
+  n.j2=length(indiv.j2)
+
+  out[1]=mean(y1)-mean(y2)
+  for  (t in 2:nreps)
+  {
+    out1=vector(length=0)
+
+    list.i1=sample(indiv.i1,n.i1,replace=T)
+    for(t2 in 1:length(list.i1))
+    {
+      list.j1=sample(indiv.j1,n.j1,replace=T)
+      for (t3 in 1:length(list.j1))
+      {
+        temp1=data1[(i1==as.numeric(list.i1[t2])&j1==as.numeric(list.j1[t3])),3]
+        if(length(temp1)>0) out1= c(out1,temp1)
+      }
+    }
+    out2=vector(length=0)
+    list.i2=sample(indiv.i2,n.i2,replace=T)
+    for(t2 in 1:length(list.i2))
+    {
+      list.j2=sample(indiv.j2,n.j2,replace=T)
+      for (t3 in 1:length(list.j2))
+      {
+        temp2=data2[(i2==as.numeric(list.i2[t2])&j2==as.numeric(list.j2[t3])),3]
+        if (length(temp2)>0) out2=c(out2,temp2)
+      }
+    }
+
+    out[t]=mean(out1)-mean(out2)-(mean(y1)-mean(y2))
+  }
+
+  print("pval")
+  print(mean(out <= out[1]))
+
+  ##return(out)
+}
+
+
+
+fmr_2i_ls_pval=function(i1,k1,y1,i2,k2,y2)
+{
+  nu1hat=mean(y1)
+  nu2hat=mean(y2)
+  pooled=mean(c(y1,y2))
+  se1=fmr_1s_asymmetric_se_nomat(i1,k1,y1,0.5)
+  se2=fmr_1s_asymmetric_se_nomat(i2,k2,y2,0.5)
+
+  zstat=(nu1hat-nu2hat)/sqrt(se1^2+se2^2)
+  pval=pnorm(zstat)
+  print("Z")
+  print(zstat)
+  print("p-value")
+  print(pval)
+  ##return(sqrt(se1^2+se2^2))
+}
+
+
+
+fmr_2p_bs_ci=function(i,j,y1,y2,nreps=1000,cross=1,level=0.95)
+{
+  if(length(i)!=length(j)|length(i)!=length(y1)) {print("lengths unequal");break}
+
+  out=rep(0,nreps)
+  data1=cbind(i,j,y1)
+  data2=cbind(i,j,y2)
+  indiv.i=names(table(i))
+  n.i=length(indiv.i)
+  indiv.j=names(table(j))
+  n.j=length(indiv.j)
+  if (cross==1) {indiv.j=indiv.i;n.j=n.i}
+
+  for  (t in 1:nreps)
+  {
+    out1=vector(length=0)
+    out2=vector(length=0)
+    list.i=sample(indiv.i,n.i,replace=T)
+    for(t2 in 1:length(list.i))
+    {
+      list.j=sample(indiv.j,n.j,replace=T)
+      for (t3 in 1:length(list.j))
+      {
+        temp1=data1[(i==as.numeric(list.i[t2])&j==as.numeric(list.j[t3])),]
+        temp2=data2[(i==as.numeric(list.i[t2])&j==as.numeric(list.j[t3])),]
+        out1= c(out1,temp1[,3])
+        out2=c(out2,temp2[,3])
+      }
+    }
+    out[t]=mean(out1)-mean(out2)-(mean(y1)-mean(y2))
+  }
+  print("ci")
+  #print(out)
+  ci=c(mean(y1)-mean(y2)-quantile(out,(1-level)/2),mean(y1)-mean(y2)-quantile(out,1-(1-level)/2))
+  print(ci)
+
+}
+
+
+fmr_2p_ls_ci=function(i,k,y1,y2,level)
+{
+  nu1hat=mean(y1)
+  nu2hat=mean(y2)
+  se1=fmr_1s_asymmetric_se_nomat(i,k,y1,0.5)
+  se2=fmr_1s_asymmetric_se_nomat(i,k,y2,0.5)
+  covvar=fmr_cov_paired(i,k,y1,y2)
+
+  se=sqrt(se1^2+se2^2-2*covvar)
+  print("CI")
+  CI=c(nu1hat-nu2hat-qnorm(1-(1-level)/2)*se,nu1hat-nu2hat+qnorm(1-(1-level)/2)*se)
+  print(CI)
+
+  ##return(se)
+}
+
+
+fmr_2p_bs_pval=function(i,j,y1,y2,nreps=1000,cross=1,level=0.95)
+{
+  if(length(i)!=length(j)|length(i)!=length(y1)) {print("lengths unequal");break}
+
+  out=rep(0,nreps)
+  data1=cbind(i,j,y1)
+  data2=cbind(i,j,y2)
+  indiv.i=names(table(i))
+  n.i=length(indiv.i)
+  indiv.j=names(table(j))
+  n.j=length(indiv.j)
+  if (cross==1) {indiv.j=indiv.i;n.j=n.i}
+  out[1]=mean(y1)-mean(y2)
+  for  (t in 2:nreps)
+  {
+    out1=vector(length=0)
+    out2=vector(length=0)
+    list.i=sample(indiv.i,n.i,replace=T)
+    for(t2 in 1:length(list.i))
+    {
+      list.j=sample(indiv.j,n.j,replace=T)
+      for (t3 in 1:length(list.j))
+      {
+        temp1=data1[(i==as.numeric(list.i[t2])&j==as.numeric(list.j[t3])),]
+        temp2=data2[(i==as.numeric(list.i[t2])&j==as.numeric(list.j[t3])),]
+        out1= c(out1,temp1[,3])
+        out2=c(out2,temp2[,3])
+      }
+    }
+    out[t]=mean(out1)-mean(out2)-(mean(y1)-mean(y2))
+  }
+
+  print("pval")
+  print(mean(out <= out[1]))
+
+}
+
+
+fmr_2p_ls_pval=function(i1,k1,y1,y2)
+{
+  nu1hat=mean(y1)
+  nu2hat=mean(y2)
+  pooled=mean(c(y1,y2))
+  se1=fmr_1s_asymmetric_se_nomat(i1,k1,y1,0.5)
+  se2=fmr_1s_asymmetric_se_nomat(i1,k1,y2,0.5)
+
+  covvar=fmr_cov_paired(i1,k1,y1,y2)
+
+  print("covvar")
+  print(covvar)
+
+  se.p=sqrt(pooled*(1-pooled)*(se1^2/nu1hat/(1-nu1hat)+se2^2/nu2hat/(1-nu2hat)) -2*covvar)
+
+  zstat=(nu1hat-nu2hat)/se.p
+  pval=pnorm(zstat)
+  print("Z")
+  print(zstat)
+  print("p-value")
+  print(pval)
+  ##return(se.p)
+}
+fmr_2p_ls_pval=function(i1,k1,y1,y2)
+{
+  nu1hat=mean(y1)
+  nu2hat=mean(y2)
+  pooled=mean(c(y1,y2))
+  se1=fmr_1s_asymmetric_se_nomat(i1,k1,y1,0.5)
+  se2=fmr_1s_asymmetric_se_nomat(i1,k1,y2,0.5)
+
+  covvar=fmr_cov_paired(i1,k1,y1,y2)
+
+  print("covvar")
+  print(covvar)
+
+  se.p=sqrt(pooled*(1-pooled)*(se1^2/nu1hat/(1-nu1hat)+se2^2/nu2hat/(1-nu2hat)) -2*covvar)
+
+  zstat=(nu1hat-nu2hat)/se.p
+  pval=pnorm(zstat)
+  print("Z")
+  print(zstat)
+  print("p-value")
+  print(pval)
+  return(se.p)
+}
+
+fmr_2p_rand_pval=function(i,k,y1,y2,nreps=1000)
+{
+  if(length(i)!=length(k)|length(i)!=length(y1)) {print("lengths unequal");break}
+
+  tt=rep(0,nreps)
+  tt[1]=mean(y1)-mean(y2)
+  numb=length(i)
+  y=cbind(y1,y2)
+  table.i=table(i)
+  table.k=table(k)
+  ##print(tt[1])
+  for(x in 2:nreps){
+
+      for(i2 in 1:length(table.i)){
+        for(k2 in 1:length(table.k))
+        {
+
+          grand=rbinom(numb,1,0.5)+1
+
+        }
+      tt[x]=mean(y[,grand])-mean(y[,3-grand])
+      }
+  }
+
+  print("pval")
+  print(mean(tt >= tt[1]))
+  ##return(tt)
+}
+
+
+fmr_3i_bs_pval =function(listy,nreps=1000)
+{
+  F=rep(0,nreps)
+  nuhat=rep(0,length(listy))
+  numb=rep(0,length(listy))
+  for (i in 1:length(listy))
+  {
+    nuhat[i]=mean(listy[[i]][,3])
+    numb[i]=length(listy[[i]][,3])
+  }
+  ##print(nuhat)
+  ##print(numb)
+  nuall=sum(numb*nuhat)/sum(numb)
+  ##print(nuall)
+  F[1]=sum(numb*(nuhat-nuall)^2)
+  ##print(F[1])
+  nutemp=rep(0,length(listy))
+  numbtemp=rep(0,length(listy))
+  for (k in 2:nreps)
+  {
+    for( j in 1:length(listy))
+    {
+      indiv.i=names(table(listy[[j]][,1]))
+      n.i=length(indiv.i)
+      indiv.j=names(table(listy[[j]][,2]))
+      n.j=length(indiv.j)
+      out=vector(length=0)
+      #print(n.i);print(n.j)
+      list.i=sample(indiv.i,n.i,replace=T)
+      for(t2 in 1:length(list.i))
+      {
+        list.j=sample(indiv.j,n.j,replace=T)
+        for (t3 in 1:length(list.j))
+        {
+          #print(length(list.j));print(length(list.i));
+          temp=listy[[j]][(listy[[j]][,1]==as.numeric(list.i[t2])&listy[[j]][,2]==as.numeric(list.j[t3])),3]
+          #print(temp)
+          if (length(temp)>0) out= c(out,temp)
+        }
+      }
+      nutemp[j]=mean(out)
+      numbtemp[j]=length(out)
+      nualltemp=sum(numbtemp*nutemp)/sum(numbtemp)
+    }
+    #print(nutemp);print(numbtemp)
+    F[k]=sum(numbtemp*(nutemp-nuhat)^2)
+
+
+  }
+
+
+  print("pvalue")
+  print(mean(F >= F[1]))
+
+  ##return(F)
+
+}
+
+
+
+fmr_3p_bs_pval=function(ymat,nreps=1000,cross,level)
+{
+  F=rep(0,nreps)
+  G=ncol(ymat)-2
+  nuhat=rep(0,ncol(ymat)-2)
+  numb=rep(0,ncol(ymat)-2)
+  nuhat=apply(ymat[,3:ncol(ymat)],2,mean)
+  F[1]=sum((nuhat-mean(nuhat))^2)
+
+  for (i in 2:nreps)
+  {
+    indiv.i=names(table(ymat[,1]))
+    n.i=length(indiv.i)
+    indiv.j=names(table(ymat[,2]))
+    n.j=length(indiv.j)
+    if (cross==1) {indiv.j=indiv.i;n.j=n.i}
+
+    out=vector(length=0)
+    list.i=sample(indiv.i,n.i,replace=T)
+    for(t2 in 1:length(list.i))
+    {
+      list.j=sample(indiv.j,n.j,replace=T)
+      for (t3 in 1:length(list.j))
+      {
+        temp=ymat[(ymat[,1]==as.numeric(list.i[t2])&ymat[,2]==as.numeric(list.j[t3])),]
+        if (length(temp)>0) out= rbind(out,t(as.matrix(temp)))
+      }
+    }
+
+    nutemp=apply(out[,3:(G+2)],2,mean)
+    F[i]=sum((nutemp-nuhat)^2)
+
+  }
+
+
+  print("pvalue")
+  print(mean(F >= F[1]))
+
+}
+
+fmr_3p_rand_pval=function(i,k,ymat,nreps=1000)
+{
+  if(length(i)!=length(k)|length(i)!=length(ymat[,1])) {print("lengths unequal");break}
+
+  G=ncol(ymat)
+  Fcalc=rep(0,nreps)
+  numean=mean(ymat)
+  nuhat=apply(ymat,2,mean)
+  Fcalc[1]=sum((nuhat-numean)^2)
+  ##print(nuhat);print(Fcalc[1])
+  numb=nrow(ymat)
+  ymattemp=matrix(0,nrow=numb,ncol=G)
+  for(t1 in 2:nreps)
+  {
+    ymattemp=matrix(0,nrow=numb,ncol=G)
+
+    for (t2 in 1:nrow(ymat))
+    {
+      ymattemp[t2,]=sample(ymat[t2,])
+    }
+    nuhattemp=apply(ymattemp,2,mean)
+    Fcalc[t1]=sum((nuhattemp-numean)^2)
+  }
+
+  print("pval")
+  print(mean(Fcalc >= Fcalc[1]))
+  return(Fcalc)
+}
+
+fmr_cov_paired=function(i1,k1,y1,y2)
+{
+  nu1hat=mean(y1)
+  nu2hat=mean(y2)
+  x1=y1-nu1hat
+  x2=y2-nu2hat
+  covvar=sum(x1*x2)/length(i1)/length(i1)
+  return(covvar)
+}
+
+fmr_bs_general=function(i,j,y,nreps=1000,cross=1)
+{
+  if(length(i)!=length(j)|length(i)!=length(y)) {print("lengths unequal");break}
+
+  out2=rep(0,nreps)
+  data=cbind(i,j,y)
+  indiv.i=names(table(i))
+  n.i=length(indiv.i)
+  indiv.j=names(table(j))
+  n.j=length(indiv.j)
+  if (cross==1) {indiv.j=indiv.i;n.j=n.i}
+
+  for  (t in 1:nreps)
+  {
+
+    out=vector(length=0)
+    list.i=sample(indiv.i,n.i,replace=T)
+    for(t2 in 1:length(list.i))
+    {
+      list.j=sample(indiv.j,n.j,replace=T)
+      for (t3 in 1:length(list.j))
+      {
+        temp=data[(i==as.numeric(list.i[t2])&j==as.numeric(list.j[t3])),]
+        if (length(temp)>0) out= rbind(out,t(as.matrix(temp))[,3])
+      }
+    }
+    out2[t]=mean(out)
+  }
+  return(out2)
+}
+
+

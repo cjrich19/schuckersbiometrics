@@ -1,0 +1,81 @@
+\name{fcalc3p}
+\alias{fcalc3p}
+%- Also NEED an '\alias' for EACH other topic documented here.
+\title{fcalc3p
+%%  ~~function to do ... ~~
+}
+\description{F statistic calculation for paired data supplementary function
+%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+}
+\usage{
+fcalc3p(Dmat, delta)
+}
+%- maybe also 'usage' for other objects documented here.
+\arguments{
+  \item{Dmat}{decision matrix
+%%     ~~Describe \code{x} here~~
+}
+\item{delta}{delta
+%%     ~~Describe \code{x} here~~
+}
+}
+
+\value{f stat
+%%  ~Describe the value returned
+%%  If it is a LIST, use
+%%  \item{comp1 }{Description of 'comp1'}
+%%  \item{comp2 }{Description of 'comp2'}
+%% ...
+}
+
+\examples{
+##---- Should be DIRECTLY executable !! ----
+##-- ==>  Define data, use random,
+##--	or do  help(data=index)  for the standard data sets.
+
+## The function is currently defined as
+function(Dmat,delta=0){
+
+  G=ncol(Dmat)-1
+  #print("G");print(G);
+  ###G is the number of sets of data
+  ###n.g is the number of data points in each set of data
+  pihat.g=rep(0,G)
+  ###pihat.g is the mean Decisions of each set of data
+
+  ###Dprime is a list of all of the individuals
+  #pibar=mean(Dprime)
+  #print(pibar)
+  for(i in 1:G)
+  {
+    pihat.g[i]=mean(Dmat[,i+1])+1e-15
+  }
+  pibar=mean(pihat.g)
+  var.pihat.g=rep(0,G)
+  ###var.pihat.g is the variance of each set of data
+  for(i in 1:G){
+    print(cbind(Dmat[,1],Dmat[,i+1]-delta[i]))
+    var.pihat.g[i]=var.pihat(cbind(Dmat[,1],Dmat[,i+1]-delta[i]))
+  }
+
+  ###pibar is the mean of all of the decisions
+  pib=pihat.g-delta
+  var2=var.pihat.g/(pihat.g)/(1-pihat.g)*pib*(1-pib)+1e-10
+  #print(pib)
+  F=(sum((pib-pibar)^2/(G-1)))/sum((n.g*var2)/(length(Dmat[,2:G])-G))
+  if(F>10^90) F=10^90
+  return(F)
+
+}
+
+
+}
+% Add one or more standard keywords, see file 'KEYWORDS' in the
+% R documentation directory (show via RShowDoc("KEYWORDS")):
+% \keyword{ ~kwd1 }
+% \keyword{ ~kwd2 }
+% Use only one keyword per line.
+% For non-standard keywords, use \concept instead of \keyword:
+% \concept{ ~cpt1 }
+% \concept{ ~cpt2 }
+% Use only one concept per line.

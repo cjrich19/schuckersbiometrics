@@ -1,0 +1,26 @@
+{
+    "id": "603689DA",
+    "path": "~/SchuckersBiometrics/MSBiometrics/man/fmr_2p_rand_pval.Rd",
+    "project_path": "man/fmr_2p_rand_pval.Rd",
+    "type": "r_doc",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1683754884119.0,
+    "source_on_save": false,
+    "relative_order": 7,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "36,154",
+        "scrollLine": "0"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1683554271,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1683554271,
+    "read_only": false,
+    "read_only_alternatives": []
+}

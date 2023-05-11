@@ -1,0 +1,20 @@
+\name{BANCA.G.g2.gen}
+\alias{BANCA.G.g2.gen}
+\docType{data}
+\title{BANCA.G.g2.gen
+%%   ~~ data name/kind ... ~~
+}
+\description{data set used for function examples
+%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+}
+\usage{data("BANCA.G.g2.gen")}
+\format{
+  The format is:
+ num [1:234, 1:76] 1014 1014 1014 1014 1014 ...
+}
+
+\examples{
+data(BANCA.G.g2.gen)
+## maybe str(BANCA.G.g2.gen) ; plot(BANCA.G.g2.gen) ...
+}
+\keyword{datasets}

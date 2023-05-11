@@ -1,0 +1,97 @@
+\name{fmr_3p_bs_pval}
+\alias{fmr_3p_bs_pval}
+%- Also NEED an '\alias' for EACH other topic documented here.
+\title{fmr_3p_bs_pval
+%%  ~~function to do ... ~~
+}
+\description{3 sample paired bootstrap
+%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+}
+\usage{
+fmr_3p_bs_pval(ymat,nreps=1000,cross,level)
+}
+%- maybe also 'usage' for other objects documented here.
+\arguments{
+  \item{ymat}{ binary indicator of match
+%%     ~~Describe \code{x} here~~
+}
+\item{nreps}{
+    number of repetitions
+}
+ \item{cross1}{
+  1 or 0 to indicate if that the list of individuals is the same for the two columns representing the individuals (1) or different (0).
+ (input for samples 1 and 2)
+}\item{cross2}{
+  The same as cross1 but for sample 2
+}
+\item{level}{
+  confidence level
+}
+}
+
+\value{p value
+%%  ~Describe the value returned
+%%  If it is a LIST, use
+%%  \item{comp1 }{Description of 'comp1'}
+%%  \item{comp2 }{Description of 'comp2'}
+%% ...
+}
+
+\examples{
+ymat=cbind(BANCA.G.g1.imp[,1],BANCA.G.g1.imp[,2],as.numeric(BANCA.G.g1.imp[,3]>0.1),as.numeric(BANCA.G.g1.imp[,4]>0),as.numeric(BANCA.G.g1.imp[,5]>0.2))
+
+fmr_3p_bs_pval(ymat,nreps=1000,cross=0)
+
+
+## The function is currently defined as
+fmr_3p_bs_pval=function(ymat,nreps=1000,cross,level)
+{
+  F=rep(0,nreps)
+  G=ncol(ymat)-2
+  nuhat=rep(0,ncol(ymat)-2)
+  numb=rep(0,ncol(ymat)-2)
+  nuhat=apply(ymat[,3:ncol(ymat)],2,mean)
+  print(nuhat)
+  F[1]=sum((nuhat-mean(nuhat))^2)
+  print(F[1])
+
+  for (i in 2:nreps)
+  {
+    indiv.i=names(table(ymat[,1]))
+    n.i=length(indiv.i)
+    indiv.j=names(table(ymat[,2]))
+    n.j=length(indiv.j)
+    if (cross==1) {indiv.j=indiv.i;n.j=n.i}
+
+    out=vector(length=0)
+    list.i=sample(indiv.i,n.i,replace=T)
+    for(t2 in 1:length(list.i))
+    {
+      list.j=sample(indiv.j,n.j,replace=T)
+      for (t3 in 1:length(list.j))
+      {
+        temp=ymat[(ymat[,1]==as.numeric(list.i[t2])&ymat[,2]==as.numeric(list.j[t3])),]
+        if (length(temp)>0) out= rbind(out,t(as.matrix(temp)))
+      }
+    }
+
+    nutemp=apply(out[,3:(G+2)],2,mean)
+    F[i]=sum((nutemp-nuhat)^2)
+
+  }
+
+
+  print("pvalue")
+  print(mean(F >= F[1]))
+
+}
+}
+% Add one or more standard keywords, see file 'KEYWORDS' in the
+% R documentation directory (show via RShowDoc("KEYWORDS")):
+% \keyword{ ~kwd1 }
+% \keyword{ ~kwd2 }
+% Use only one keyword per line.
+% For non-standard keywords, use \concept instead of \keyword:
+% \concept{ ~cpt1 }
+% \concept{ ~cpt2 }
+% Use only one concept per line.

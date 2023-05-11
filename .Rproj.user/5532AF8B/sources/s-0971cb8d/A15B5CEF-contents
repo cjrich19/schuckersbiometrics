@@ -1,0 +1,17 @@
+Package: MSBiometrics
+Type: Package
+Title: Contains functions from Professor Michael Schuckers' book
+    Computational Methods for Biometrics Authentication, Springer (2010)
+Version: 0.1.0
+Author: Michael Schuckers & Cassie Richter
+Maintainer: The package maintainer <schuckers@stlawu.edu>
+Description: Functions for statistical methods of biometrics for False
+    Match Rate (FMR) and False Non-Match Rate (FNMR). Methods for 1 samples,
+    2 samples, and multiple samples for large sample, boostrap, and randomized
+    sampling methods. Each combintion of methodology has functions for confidence
+    interval output as well as a hypothesis test outputting a p value. 
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true
+Depends: 
+    R (>= 3.5.0)

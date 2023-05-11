@@ -1,0 +1,135 @@
+\name{fmr_2i_bs_pval}
+\alias{fmr_2i_bs_pval}
+%- Also NEED an '\alias' for EACH other topic documented here.
+\title{fmr_2i_bs_pval
+%%  ~~function to do ... ~~
+}
+\description{2 sample independent bootstrap
+%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+}
+\usage{
+fmr_2i_bs_pval(i1,j1,y1,i2,j2,y2,nreps=1000,cross1,cross2,level=0.95)
+}
+%- maybe also 'usage' for other objects documented here.
+\arguments{
+   \item{i1}{ id 1
+%%     ~~Describe \code{x} here~~
+}
+\item{j1}{ id 2
+%%     ~~Describe \code{x} here~~
+}
+\item{y1}{ binary for first sample  indication of match
+%%     ~~Describe \code{x} here~~
+}
+\item{i2}{ id 1 sample 2
+%%     ~~Describe \code{x} here~~
+}
+\item{j2}{ id 2 sample 2
+%%     ~~Describe \code{x} here~~
+}
+\item{y2}{ binary for second sample indication of match
+%%     ~~Describe \code{x} here~~
+}
+\item{nreps}{
+    number of repetitions
+}
+\item{cross(1 and 2)}{
+  1 or 0 to indicate cross (input for samples 1 and 2)
+}
+\item{level}{
+  confidence level
+}
+}
+\details{
+%%  ~~ If necessary, more details than the description above ~~
+}
+\value{p value
+%%  ~Describe the value returned
+%%  If it is a LIST, use
+%%  \item{comp1 }{Description of 'comp1'}
+%%  \item{comp2 }{Description of 'comp2'}
+%% ...
+}
+\references{
+%% ~put references to the literature/web site here ~
+}
+\author{
+%%  ~~who you are~~
+}
+\note{
+%%  ~~further notes~~
+}
+
+%% ~Make other sections like Warning with \section{Warning }{....} ~
+
+\seealso{
+%% ~~objects to See Also as \code{\link{help}}, ~~~
+}
+\examples{
+fmr_2i_bs_pval(BANCA.G.g2.imp[,1],BANCA.G.g2.imp[,2], + as.numeric(BANCA.G.g2.imp[,76] > -66), BANCA.G.g1.imp[,1],BANCA.G.g1.imp[,2], + as.numeric(BANCA.G.g1.imp[,76] > -66))
+
+
+## The function is currently defined as
+fmr_2i_bs_hyp=function(i1,j1,y1,i2,j2,y2,nreps=1000,cross1,cross2,level=0.95)
+{
+  #if(length(i)!=length(j)|length(i)!=length(y1)) {print("lengths unequal");break}
+
+  out=rep(0,nreps)
+  data1=cbind(i1,j1,y1)
+  data2=cbind(i2,j2,y2)
+
+  indiv.i1=names(table(i1))
+  n.i1=length(indiv.i1)
+  indiv.j1=names(table(j1))
+  n.j1=length(indiv.j1)
+
+  indiv.i2=names(table(i2))
+  n.i2=length(indiv.i2)
+  indiv.j2=names(table(j2))
+  n.j2=length(indiv.j2)
+
+  out[1]=mean(y1)-mean(y2)
+  for  (t in 2:nreps)
+  {
+    out1=vector(length=0)
+
+    list.i1=sample(indiv.i1,n.i1,replace=T)
+    for(t2 in 1:length(list.i1))
+    {
+      list.j1=sample(indiv.j1,n.j1,replace=T)
+      for (t3 in 1:length(list.j1))
+      {
+        temp1=data1[(i1==as.numeric(list.i1[t2])&j1==as.numeric(list.j1[t3])),3]
+        if(length(temp1)>0) out1= c(out1,temp1)
+      }
+    }
+    out2=vector(length=0)
+    list.i2=sample(indiv.i2,n.i2,replace=T)
+    for(t2 in 1:length(list.i2))
+    {
+      list.j2=sample(indiv.j2,n.j2,replace=T)
+      for (t3 in 1:length(list.j2))
+      {
+        temp2=data2[(i2==as.numeric(list.i2[t2])&j2==as.numeric(list.j2[t3])),3]
+        if (length(temp2)>0) out2=c(out2,temp2)
+      }
+    }
+
+    out[t]=mean(out1)-mean(out2)-(mean(y1)-mean(y2))
+  }
+
+  print("pval")
+  print(mean(out <= out[1]))
+
+  return(out)
+}
+}
+% Add one or more standard keywords, see file 'KEYWORDS' in the
+% R documentation directory (show via RShowDoc("KEYWORDS")):
+% \keyword{ ~kwd1 }
+% \keyword{ ~kwd2 }
+% Use only one keyword per line.
+% For non-standard keywords, use \concept instead of \keyword:
+% \concept{ ~cpt1 }
+% \concept{ ~cpt2 }
+% Use only one concept per line.
