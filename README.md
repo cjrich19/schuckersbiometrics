@@ -43,3 +43,11 @@
 # NAMESPACE
   - Used to read in any outside packages that the functions use. 
   - If any library/package other than base R is used within a function, it can be read in here.
+
+
+
+## useful resources 
+  - http://web.mit.edu/insong/www/pdf/rpackage_instructions.pdf
+  - https://cran.r-project.org/doc/contrib/Leisch-CreatingPackages.pdf
+  - https://www.camplab.net/adding-code-to-an-r-package/
+  - https://cran.r-project.org/doc/manuals/R-exts.html#Data-in-packages
